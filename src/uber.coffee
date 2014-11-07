@@ -25,16 +25,15 @@ Table = require 'cli-table'
 UBER_API_URL = 'https://api.uber.com/v1/'
 
 module.exports = (robot) ->
-  robot.brain.data.uber ?=
-    locations: {}
-    defaultLocationName: false
 
   getLoc = (msg, cb) ->
     loc = msg.match[1]
-    loc ?= robot.brain.data.uber.defaultLocationName
+    loc ?= robot.brain.get 'uberDefault'
+    locations = robot.brain.get 'uberLocations'
+    locations ?= {}
 
-    if location = robot.brain.data.uber.locations[loc]
-      cb location
+    if locations[loc]
+      cb locations[loc]
     else
       msg.send 'No location provided. Try "help uber" to learn how to add'
 
@@ -65,9 +64,12 @@ module.exports = (robot) ->
     lat = msg.match[2]
     lon = msg.match[4]
 
-    robot.brain.data.uber.locations[loc] =
+    locations = robot.brain.get 'uberLocations'
+    locations ?= {}
+    locations[loc] =
       lat: parseFloat lat
       lon: parseFloat lon
+    robot.brain.set 'uberLocations', locations
 
     msg.send "Saved #{loc} at #{lat}, #{lon} for Uber lookups"
 
@@ -76,25 +78,31 @@ module.exports = (robot) ->
     loc = msg.match[1]
 
     if loc
-      if robot.brain.data.uber.locations[loc]
-        robot.brain.data.uber.defaultLocationName = loc
+      locations = robot.brain.get 'uberLocations'
+      locations ?= {}
+
+      if locations[loc]
+        robot.brain.set 'uberDefault', loc
 
         msg.send "Saved #{loc} as default location"
 
       else
         msg.send "#{loc} hasn't been added yet"
     else
-      if name = robot.brain.data.uber.defaultLocationName
+      if name = robot.brain.get 'uberDefault'
         msg.send 'Default location is ' + name
       else
         msg.send 'No default set yet'
 
   # "hubot uber show locations"
-  robot.respond /uber\slocations/i, (msg) ->
+  robot.respond /uber locations/i, (msg) ->
     table = new Table
       head: ['Location', 'Latitude', 'Longitude']
 
-    for loc, coord of robot.brain.data.uber.locations
+    locations = robot.brain.get 'uberLocations'
+    locations ?= {}
+
+    for loc, coord of locations
       table.push [loc, coord.lat, coord.lon]
 
     msg.send "#{table}"

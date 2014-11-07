@@ -1,35 +1,85 @@
-# Hubot Example
+# Hubot Uber
 
-An example script package for Hubot
+A [Hubot](https://hubot.github.com/) script to get estimates and promos from [Uber](https://www.uber.com/invite/rtjmz)
 
-[![Build Status](https://travis-ci.org/hubot-scripts/hubot-example.png)](https://travis-ci.org/hubot-scripts/hubot-example)
+## Install
 
-## Directory Structure
+In hubot project repo, run:
 
-Using the common directory structure for hubot script packages it will be easy
-to manage and allow others to easily contribute to your package.
+```
+npm install hubot-uber --save
+```
 
-### script
+Then add **hubot-uber** to your `external-scripts.json`:
 
-This directory is home to a couple of development scripts; `bootstrap` and `test`
-they're used to bootstrap the development environment and run tests
-respectively.
+```
+["hubot-uber"]
+```
 
-### src
+## Usage
 
-This directory is home to the actual hubot scripts in the package. Your
-`index.coffee` entry point will load the scripts from this directory.
+### add
 
-### test
+Add a location to use as base for Uber estimates.
 
-This directory is home to any tests you write for your scripts. This example
-package uses Mocha, Chai and Sinon to manage writing tests.
+> hubot uber add office 37.782093, -122.391580
 
-## Advantages of Building a Package
+### default
 
-Some of the advantages of building an npm package for your hubot script(s) are:
+Set a location as the default.
 
-* You don't need to rely on when hubot-scripts package is released.
-* You can specify dependencies in the `package.json` rather than have users
-  manually specify them
-* You can easily add tests using your favourite frameworks and libraries
+> hubot uber default office
+
+Get the default
+
+> hubot uber default
+
+### locations
+
+List locations added
+
+> hubot uber locations
+
+### products
+
+Get list of products available for a location.
+
+> hubot uber products office
+
+_Location is optional if you've set a default_
+
+> hubot uber products
+
+### prices
+
+Get list of prices (surge included) available for a location.
+
+> hubot uber prices office
+
+_Location is optional if you've set a default_
+
+> hubot uber prices
+
+### times
+
+Get list of wait times for a location.
+
+> hubot uber times office
+
+_Location is optional if you've set a default_
+
+> hubot uber times
+
+### promo
+
+Get promotion available to new users for a location.
+
+> hubot uber promo office
+
+_Location is optional if you've set a default_
+
+> hubot uber promo
+
+## Help
+
+- [Get the coordinates of a place from Google Maps](https://support.google.com/maps/answer/18539?hl=en)
