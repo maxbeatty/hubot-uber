@@ -83,3 +83,7 @@ _Location is optional if you've set a default_
 ## Help
 
 - [Get the coordinates of a place from Google Maps](https://support.google.com/maps/answer/18539?hl=en)
+
+## Credits
+
+- [@holman](https://github.com/holman)'s [gist](https://gist.github.com/holman/55130df8c9ba9fbce085) inspired this
