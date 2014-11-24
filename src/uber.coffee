@@ -25,6 +25,8 @@ Table = require 'cli-table'
 UBER_API_URL = 'https://api.uber.com/v1/'
 
 module.exports = (robot) ->
+  unless process.env.HUBOT_UBER_TOKEN
+    robot.logger.warning 'HUBOT_UBER_TOKEN missing! See README for help'
 
   getLoc = (msg, cb) ->
     loc = msg.match[1]

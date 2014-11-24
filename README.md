@@ -16,6 +16,16 @@ Then add **hubot-uber** to your `external-scripts.json`:
 ["hubot-uber"]
 ```
 
+## Configure
+
+You will need to [register an app with Uber](https://developer.uber.com/apps/) and expose your [server token](https://developer.uber.com/v1/auth/#reference) as an environment variable named `HUBOT_UBER_TOKEN`.
+
+### Heroku
+
+```
+heroku config:set HUBOT_UBER_TOKEN=your_secret_server_token
+```
+
 ## Usage
 
 ### add
