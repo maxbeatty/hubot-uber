@@ -20,6 +20,8 @@ Then add **hubot-uber** to your `external-scripts.json`:
 
 You will need to [register an app with Uber](https://developer.uber.com/apps/) and expose your [server token](https://developer.uber.com/v1/auth/#reference) as an environment variable named `HUBOT_UBER_TOKEN`.
 
+You can optionally set a `HUBOT_UBER_OUTPUT_FORMAT`. Accepted values are `table` (ASCII table), `slack` (ASCII table preceded by code block notation) and `none`. Defaults to none.
+
 ### Heroku
 
 ```

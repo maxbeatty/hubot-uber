@@ -6,6 +6,7 @@
 #
 # Configuration:
 #   HUBOT_UBER_TOKEN - server token from https://developer.uber.com/apps/
+#   HUBOT_UBER_OUTPUT_FORMAT - set to `table`, `slack` or `none`; defaults to none
 #
 # Commands:
 #   hubot uber add <location> <lat>, <lon> - add a location
@@ -23,6 +24,7 @@
 Table = require 'cli-table'
 
 UBER_API_URL = 'https://api.uber.com/v1/'
+UBER_OUTPUT_FORMAT = process.env.HUBOT_UBER_OUTPUT_FORMAT or 'none'
 
 module.exports = (robot) ->
   unless process.env.HUBOT_UBER_TOKEN
@@ -59,13 +61,52 @@ module.exports = (robot) ->
 
     robot.http("#{UBER_API_URL}#{path}").query(params).get() cb
 
+  ##
+  # Wrapper for sending complex bot output
+  sendOutput = (headers, rows, msg) ->
+    switch UBER_OUTPUT_FORMAT
+      when 'table'
+        sendTableOutput headers, rows, msg
+      when 'slack'
+        sendSlackOutput headers, rows, msg
+      else
+        sendUnformattedOutput headers, rows, msg
+
+  ##
+  # Format for fixed width table
+  sendTableOutput = (headers, rows, msg) ->
+    table = new Table
+      headers: headers
+    for i, row of rows
+      table.push row
+
+    msg.send "#{table}"
+
+  ##
+  # Format for Slack
+  sendSlackOutput = (headers, rows, msg) ->
+    table = new Table
+      headers: headers
+    for i, row of rows
+      table.push row
+
+    msg.send "```\n#{table}\n```"
+
+  ##
+  # Unformatted
+  sendUnformattedOutput = (_headers, rows, msg) ->
+    output = ""
+    for i, row of rows
+      output += "#{row.join(' / ')}\n"
+
+    msg.send output
+
   # "hubot uber add office 12.345 67.890"
   # match lat and lon http://stackoverflow.com/a/3518546/613588
   robot.respond /uber add (.+) (\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)/i, (msg) ->
     loc = msg.match[1]
     lat = msg.match[2]
     lon = msg.match[4]
-
     locations = robot.brain.get 'uberLocations'
     locations ?= {}
     locations[loc] =
@@ -78,16 +119,12 @@ module.exports = (robot) ->
   # "hubot uber default office"
   robot.respond /uber default\s?(.+)?/i, (msg) ->
     loc = msg.match[1]
-
     if loc
       locations = robot.brain.get 'uberLocations'
       locations ?= {}
-
       if locations[loc]
         robot.brain.set 'uberDefault', loc
-
         msg.send "Saved #{loc} as default location"
-
       else
         msg.send "#{loc} hasn't been added yet"
     else
@@ -98,66 +135,57 @@ module.exports = (robot) ->
 
   # "hubot uber show locations"
   robot.respond /uber locations/i, (msg) ->
-    table = new Table
-      head: ['Location', 'Latitude', 'Longitude']
-
+    headers = ['Location', 'Latitude', 'Longitude']
+    rows = []
     locations = robot.brain.get 'uberLocations'
     locations ?= {}
-
     for loc, coord of locations
-      table.push [loc, coord.lat, coord.lon]
+      rows.push [loc, coord.lat, coord.lon]
 
-    msg.send "#{table}"
+    sendOutput(headers, rows, msg)
 
   # "hubot uber products office"
   robot.respond /uber products\s?(.+)?/i, (msg) ->
     getLoc msg, (loc) ->
       makeApiCall 'products', loc.lat, loc.lon, (err, res, body) ->
         robot.emit 'error', err if err
-
-        table = new Table
-          head: ['Product', 'Description']
-
+        headers = ['Product', 'Description']
+        rows = []
         json = JSON.parse body
         for product in json.products
-          table.push [product.display_name, product.description]
+          rows.push [product.display_name, product.description]
 
-        msg.send "#{table}"
+        sendOutput(headers, rows, msg)
 
   robot.respond /uber prices\s?(.+)?/i, (msg) ->
     getLoc msg, (loc) ->
       makeApiCall 'estimates/price', loc.lat, loc.lon, (err, res, body) ->
         robot.emit 'error', err if err
-
-        table = new Table
-          head: ['Product', 'Price']
-
+        headers = ['Product', 'Price']
+        rows = []
         json = JSON.parse body
         for product in json.prices
-          table.push [product.display_name, product.estimate]
+          rows.push [product.display_name, product.estimate]
 
-        msg.send "#{table}"
+        sendOutput(headers, rows, msg)
 
   robot.respond /uber times?\s?(.+)?/i, (msg) ->
     getLoc msg, (loc) ->
       makeApiCall 'estimates/time', loc.lat, loc.lon, (err, res, body) ->
         robot.emit 'error', err if err
-
-        table = new Table
-          head: ['Product', 'Time']
-
+        headers = ['Product', 'Time']
+        rows = []
         json = JSON.parse body
         for product in json.times
           time = Math.round(product.estimate / 60).toString() + ' min'
-          table.push [product.display_name, time]
+          rows.push [product.display_name, time]
 
-        msg.send "#{table}"
+        sendOutput(headers, rows, msg)
 
   robot.respond /uber promo\s?(.+)?/i, (msg) ->
     getLoc msg, (loc) ->
       makeApiCall 'promotions', loc.lat, loc.lon, (err, res, body) ->
         robot.emit 'error', err if err
-
         try
           msg.send JSON.parse(body).display_text
         catch e
