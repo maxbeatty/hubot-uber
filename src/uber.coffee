@@ -76,7 +76,7 @@ module.exports = (robot) ->
   # Format for fixed width table
   sendTableOutput = (headers, rows, msg) ->
     table = new Table
-      headers: headers
+      head: headers
     for i, row of rows
       table.push row
 
@@ -86,7 +86,7 @@ module.exports = (robot) ->
   # Format for Slack
   sendSlackOutput = (headers, rows, msg) ->
     table = new Table
-      headers: headers
+      head: headers
     for i, row of rows
       table.push row
 
