@@ -9,7 +9,7 @@
 #   HUBOT_UBER_OUTPUT_FORMAT - set to `table`, `slack` or `none`; defaults to none
 #
 # Commands:
-#   hubot uber add <location> <lat>, <lon> - add a location
+#   hubot uber add <location> <lat>, <lon> - add a location (quote your location if it's more than a single word e.g. "Cape Town" )
 #   hubot uber default - get default location name
 #   hubot uber default <location> - set location as the default to use
 #   hubot uber locations - get list of locations
@@ -101,9 +101,9 @@ module.exports = (robot) ->
 
     msg.send output
 
-  # "hubot uber add office 12.345 67.890"
+  # "hubot uber add office 12.345, 67.890"
   # match lat and lon http://stackoverflow.com/a/3518546/613588
-  robot.respond /uber add (.+) (\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)/i, (msg) ->
+  robot.respond /uber add (.+?|\".*\s?.*\") (\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)/i, (msg) ->
     loc = msg.match[1]
     lat = msg.match[2]
     lon = msg.match[4]

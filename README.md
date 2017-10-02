@@ -36,6 +36,8 @@ Add a location to use as base for Uber estimates.
 
 > hubot uber add office 37.782093, -122.391580
 
+> hubot uber add "Cape Town" -33.9258400, 18.4232200
+
 ### default
 
 Set a location as the default.
@@ -95,6 +97,20 @@ _Location is optional if you've set a default_
 ## Help
 
 - [Get the coordinates of a place from Google Maps](https://support.google.com/maps/answer/18539?hl=en)
+
+## Development
+
+### Testing
+
+```bash
+npm test
+```
+
+#### Coverage
+
+```bash
+npm run test-coverage && open coverage/lcov-report/index.html
+```
 
 ## Credits
 
