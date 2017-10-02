@@ -1,7 +1,7 @@
 {
   "name": "hubot-uber",
   "description": "Hubot script to get Uber estimates",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "Max Beatty",
   "license": "MIT",
   "keywords": [
